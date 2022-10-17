@@ -1,0 +1,73 @@
+﻿@model List<UserModel>
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="row">
+    <div class="col">
+        <h1 class="display-4">@ViewData["Title"]</h1>
+        <hr />
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <a asp-action="Create" class="btn btn-primary btn-sm"><i class="fa fa-plus me-2"></i>New User</a>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col">
+        <table class="table table-hover table-sm">
+            <thead>
+                <tr>
+                    <th>Fullname</th>
+                    <th>Username</th>
+                    <th>IsLocked</th>
+                    <th>Role</th>
+                    <th>Created At</th>
+                    <th>Modified At</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (UserModel user in Model)
+                {
+                    <tr>
+                        <td>@user.FullName</td>
+                        <td>@user.Username</td>
+                        <td>
+                            @if (user.IsLocked)
+                            {
+                                @*<i class="fa fa-locked text-danger"></i>*@
+                                <a asp-action="UserLockedOrOpenlock" asp-route-id="@user.Id" onclick="return confirm('Are you want to open lock this user : @user.Username')" class="btn btn-danger btn-sm text-white" title="locked"><i class="fa fa-lock"></i></a>
+                            }
+                            else
+                            {
+                                @*<i class="fa fa-lock-open text-success"></i>*@
+                                <a asp-action="UserLockedOrOpenlock" asp-route-id="@user.Id" onclick="return confirm('Are you want to locked this user : @user.Username')" class="btn btn-success btn-sm text-white" title="unlock"><i class="fa fa-lock-open"></i></a>
+                            }
+                        </td>
+                        <td>@user.Role</td>
+                        <td>@user.CreatedAt</td>
+                        <td>@user.ModifiedAt</td>
+                        <td class="text-end">
+                            <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-warning btn-sm text-white"><i class="fa fa-edit me-2"></i>Edit</a>
+                            <a asp-action="Delete" asp-route-id="@user.Id"
+                           onclick="return confirm('Are you sure want to delete this user : @user.Username ?')" data-id="@user.Id"
+                           class="btn btn-danger btn-sm"><i class="fa fa-trash me-2"></i>Remove</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Scripts{
+    @if (TempData["result"] != null)
+    {
+        <script>
+            toastr["success"]('@TempData["result"]', "Success");
+        </script>
+    }
+}
