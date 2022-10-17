@@ -51,6 +51,8 @@ namespace NetCore6Web.Controllers
                     claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
                     claims.Add(new Claim(ClaimTypes.Name, user.FullName ?? string.Empty));
                     claims.Add(new Claim(ClaimTypes.Role, user.Role));
+                    claims.Add(new Claim(ClaimTypes.Actor, user.ProfileImageFileName));
+                    //claims.Add(new Claim("ProfileImage", user.ProfileImageFileName));
                     claims.Add(new Claim("Username", user.Username));
 
                     ClaimsIdentity identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -59,6 +61,7 @@ namespace NetCore6Web.Controllers
 
                     HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
                     TempData["result"] = "Login is success";
+                    ViewBag.ProfileImage = user.ProfileImageFileName;
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -188,7 +191,6 @@ namespace NetCore6Web.Controllers
                 // p_guid.jpg
                 //string fileName = $"p_{userid}.jpg";
                 string fileName = $"p_{userid}.{file.ContentType.Split('/')[1]}";   // image/png   image/jpg
-
                 Stream stream = new FileStream($"wwwroot/uploads/{fileName}", FileMode.OpenOrCreate);
 
                 file.CopyTo(stream);

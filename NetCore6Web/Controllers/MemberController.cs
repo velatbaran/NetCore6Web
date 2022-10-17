@@ -117,7 +117,7 @@ namespace NetCore6Web.Controllers
             return MemberListPartial();
         }
 
-        // Method 1
+        // Method - 1
         public IActionResult UserLockedOrOpenlock(Guid id)
         {
             User user = _databaseContext.Users.Find(id);
@@ -140,7 +140,7 @@ namespace NetCore6Web.Controllers
             return View(user);
         }
 
-        // Method 2
+        // Method - 2
         [HttpPost]
         public IActionResult GetLocked(Guid[] ids)
         {
@@ -148,6 +148,7 @@ namespace NetCore6Web.Controllers
             return Json(new { result = lockedUsers });
         }
 
+        // Method - 2
         [HttpPost]
         public IActionResult SetLockedOrUnLocked(Guid id , bool isLocked)
         {
