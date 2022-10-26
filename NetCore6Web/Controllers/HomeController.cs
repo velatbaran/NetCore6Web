@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NetCore6Web.Models;
 using System.Diagnostics;
 
 namespace NetCore6Web.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class HomeController : Controller
     {
         public IActionResult Index()
@@ -30,6 +31,18 @@ namespace NetCore6Web.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        [HttpGet]
+        public IActionResult GetData()
+        {
+            return Json(new { Name = "Welat", Surname = "BARAN" });
+        }
+
+        [HttpPost]
+        public IActionResult PostData([FromBody] PostDataApiModel model)
+        {
+            return Json(new { Error = false, Message = "Success" });
         }
     }
 }

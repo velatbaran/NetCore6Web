@@ -1,27 +1,31 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.IdentityModel.Tokens;
 using NETCore.Encrypt.Extensions;
 using NetCore6Web.Entities;
+using NetCore6Web.Helpers;
 using NetCore6Web.Models;
 using System.Net;
 
 namespace NetCore6Web.Controllers
 {
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin", AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class UserController : Controller
     {
         private readonly DatabaseContext _databaseContext;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly IHasher _hasher;
 
-        public UserController(DatabaseContext databaseContext, IMapper mapper, IConfiguration configuration)
+        public UserController(DatabaseContext databaseContext, IMapper mapper, IConfiguration configuration, IHasher hasher)
         {
             _databaseContext = databaseContext;
             _mapper = mapper;
             _configuration = configuration;
+            _hasher = hasher;
         }
 
         public IActionResult Index()
@@ -33,19 +37,12 @@ namespace NetCore6Web.Controllers
             return View(users);
         }
 
-        private string DoMD5HashedString(string password)
-        {
-            string md5Salt = _configuration.GetValue<string>("AppSettings:MD5Salt");
-            string salted = password + md5Salt;
-            string hashed = salted.MD5();
-            return hashed;
-        }
-
         public IActionResult Create()
         {
             return View();
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Create(CreateUserModel model)
         {
@@ -57,8 +54,8 @@ namespace NetCore6Web.Controllers
                     return View(model);
                 }
 
-                model.Password = DoMD5HashedString(model.Password);
                 User user = _mapper.Map<User>(model);
+                user.Password = _hasher.DoMD5HashedString(model.Password);
 
                 _databaseContext.Users.Add(user);
                 _databaseContext.SaveChanges();
@@ -78,6 +75,7 @@ namespace NetCore6Web.Controllers
             return View(model);
         }
 
+        [ValidateAntiForgeryToken]
         [HttpPost]
         public IActionResult Edit(Guid id, EditUserModel model)
         {
